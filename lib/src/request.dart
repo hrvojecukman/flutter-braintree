@@ -107,16 +107,41 @@ class BraintreeCreditCardRequest {
       };
 }
 
+enum GooglePayPriceStatus {
+  NotCurrentlyKnown,
+  Estimated,
+  Final,
+}
+
+extension GooglePayPriceStatusExtension on GooglePayPriceStatus {
+  int? get rawValue {
+    switch (this) {
+      case GooglePayPriceStatus.NotCurrentlyKnown:
+        return 1;
+      case GooglePayPriceStatus.Estimated:
+        return 2;
+      case GooglePayPriceStatus.Final:
+        return 3;
+      default:
+        return null;
+    }
+  }
+}
+
 class BraintreeGooglePaymentRequest {
   BraintreeGooglePaymentRequest({
-    required this.totalPrice,
+    this.totalPrice,
     required this.currencyCode,
+    required this.priceStatus,
     this.billingAddressRequired = true,
     this.googleMerchantID,
   });
 
   /// Total price of the payment.
-  String totalPrice;
+  String? totalPrice;
+
+  /// Price status.
+  GooglePayPriceStatus priceStatus;
 
   /// Currency code of the transaction.
   String currencyCode;
@@ -129,8 +154,9 @@ class BraintreeGooglePaymentRequest {
 
   /// Converts this request object into a JSON-encodable format.
   Map<String, dynamic> toJson() => {
-        'totalPrice': totalPrice,
+        if (totalPrice != null) 'totalPrice': totalPrice,
         'currencyCode': currencyCode,
+        'priceStatus': priceStatus.rawValue,
         'billingAddressRequired': billingAddressRequired,
         if (googleMerchantID != null) 'googleMerchantID': googleMerchantID,
       };
