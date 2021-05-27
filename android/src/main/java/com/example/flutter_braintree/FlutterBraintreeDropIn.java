@@ -114,12 +114,17 @@ public class FlutterBraintreeDropIn implements FlutterPlugin, ActivityAware, Met
       dropInRequest.disableGooglePayment();
       return;
     }
+
+    TransactionInfo.Builder transactionInfoBuilder = TransactionInfo.newBuilder()
+            .setTotalPriceStatus((int) arg.get("priceStatus"))
+            .setCurrencyCode((String) arg.get("currencyCode"));
+
+    if (arg.containsKey("totalPrice")) {
+      transactionInfoBuilder.setTotalPrice((String) arg.get("totalPrice"));
+    }
+
     GooglePaymentRequest googlePaymentRequest = new GooglePaymentRequest()
-            .transactionInfo(TransactionInfo.newBuilder()
-                    .setTotalPrice((String) arg.get("totalPrice"))
-                    .setCurrencyCode((String) arg.get("currencyCode"))
-                    .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL)
-                    .build())
+            .transactionInfo(transactionInfoBuilder.build())
             .billingAddressRequired((Boolean) arg.get("billingAddressRequired"))
             .googleMerchantId((String) arg.get("merchantID"));
     dropInRequest.googlePaymentRequest(googlePaymentRequest);
