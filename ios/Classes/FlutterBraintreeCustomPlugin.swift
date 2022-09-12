@@ -29,27 +29,45 @@ public class FlutterBraintreeCustomPlugin: BaseFlutterBraintreePlugin, FlutterPl
         
         if call.method == "requestPaypalNonce" {
             let driver = BTPayPalDriver(apiClient: client!)
-            driver.viewControllerPresentingDelegate = self
             
             guard let requestInfo = dict(for: "request", in: call) else {
                 isHandlingResult = false
                 return
             }
             
-            let amount = requestInfo["amount"] as? String;
-            
-            if amount == nil {
-                driver.authorizeAccount { (nonce, error) in
+            if let amount = requestInfo["amount"] as? String {
+                let paypalRequest = BTPayPalCheckoutRequest(amount: amount)
+                paypalRequest.currencyCode = requestInfo["currencyCode"] as? String
+                paypalRequest.displayName = requestInfo["displayName"] as? String
+                paypalRequest.billingAgreementDescription = requestInfo["billingAgreementDescription"] as? String
+                if let intent = requestInfo["payPalPaymentIntent"] as? String {
+                    switch intent {
+                    case "order":
+                        paypalRequest.intent = BTPayPalRequestIntent.order
+                    case "sale":
+                        paypalRequest.intent = BTPayPalRequestIntent.sale
+                    default:
+                        paypalRequest.intent = BTPayPalRequestIntent.authorize
+                    }
+                }
+                if let userAction = requestInfo["payPalPaymentUserAction"] as? String {
+                    switch userAction {
+                    case "commit":
+                        paypalRequest.userAction = BTPayPalRequestUserAction.commit
+                    default:
+                        paypalRequest.userAction = BTPayPalRequestUserAction.default
+                    }
+                }
+                driver.tokenizePayPalAccount(with: paypalRequest) { (nonce, error) in
                     self.handleResult(nonce: nonce, error: error, flutterResult: result)
                     self.isHandlingResult = false
                 }
             } else {
-                let paypalRequest = BTPayPalRequest(amount: amount!)
-                paypalRequest.currencyCode = requestInfo["currencyCode"] as? String;
-                paypalRequest.displayName = requestInfo["displayName"] as? String;
-                paypalRequest.billingAgreementDescription = requestInfo["billingAgreementDescription"] as? String;
+                let paypalRequest = BTPayPalVaultRequest()
+                paypalRequest.displayName = requestInfo["displayName"] as? String
+                paypalRequest.billingAgreementDescription = requestInfo["billingAgreementDescription"] as? String
                 
-                driver.requestOneTimePayment(paypalRequest) { (nonce, error) in
+                driver.tokenizePayPalAccount(with: paypalRequest) { (nonce, error) in
                     self.handleResult(nonce: nonce, error: error, flutterResult: result)
                     self.isHandlingResult = false
                 }
@@ -59,11 +77,13 @@ public class FlutterBraintreeCustomPlugin: BaseFlutterBraintreePlugin, FlutterPl
             let cardClient = BTCardClient(apiClient: client!)
             
             guard let cardRequestInfo = dict(for: "request", in: call) else {return}
-
-            let card = BTCard(number: (cardRequestInfo["cardNumber"] as? String)!,
-                   expirationMonth: (cardRequestInfo["expirationMonth"] as? String)!,
-                   expirationYear: (cardRequestInfo["expirationYear"] as? String)!,
-                   cvv: (cardRequestInfo["cvv"] as? String)!)
+            
+            let card = BTCard()
+            card.number = cardRequestInfo["cardNumber"] as? String
+            card.expirationMonth = cardRequestInfo["expirationMonth"] as? String
+            card.expirationYear = cardRequestInfo["expirationYear"] as? String
+            card.cvv = cardRequestInfo["cvv"] as? String
+            card.cardholderName = cardRequestInfo["cardholderName"] as? String
             
             cardClient.tokenizeCard(card) { (nonce, error) in
                 self.handleResult(nonce: nonce, error: error, flutterResult: result)

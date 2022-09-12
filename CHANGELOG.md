@@ -1,3 +1,37 @@
+## 3.0.0-dev.1
+
+* Add support for specifying payment intent and user action in `BraintreePayPalRequest` (thank you to [nabinadhikari](https://github.com/nabinadhikari)!)
+* Clean up naming conventions and documentation
+
+## 2.3.1
+
+* Update iOS dependencies (thank you to [jorgefspereira](https://github.com/jorgefspereira)!)
+
+## 2.3.0
+
+* Add option to disable PayPal in the Drop-In UI (thank you to [santhoshvgts](https://github.com/santhoshvgts)!)
+
+## 2.2.1
+
+* Switch to mavenCentral for Android builds (thank you to [asmengistu](https://github.com/asmengistu)!)
+* Fix README to account for code changes (thank you to [hrvojecukman](https://github.com/hrvojecukman)!)
+
+## 2.2.0
+
+* Add PayPal Payer ID to result object (thank you to [nabinadhikari](https://github.com/nabinadhikari)!)
+
+## 2.1.0
+* Fix PayPal vault flow not working on iOS (thank you to [andrea689](https://github.com/andrea689)!)
+* Add support for Apple Pay's `PKPaymentSummaryItem` (thank you to [bkovac](https://github.com/bkovac)!)
+
+## 2.0.0+1
+
+* Fix new build issue on iOS (thank you to [JideGuru](https://github.com/JideGuru)!)
+
+## 2.0.0
+
+* Upgrade several dependencies to fix build issues on Android and iOS (thank you to [bennibau](https://github.com/bennibau), [reverie-ss](https://github.com/reverie-ss), and [andesappal](https://github.com/andesappal)!)
+
 ## 2.0.0-nullsafety.0
 
 * Add null-safety support

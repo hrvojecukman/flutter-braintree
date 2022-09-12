@@ -31,11 +31,13 @@ func makePaymentSummaryItems(from: Dictionary<String, Any>) -> [PKPaymentSummary
 
 public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPlugin, BTThreeDSecureRequestDelegate {
     
+
+    
     private var completionBlock: FlutterResult!
     private var applePayInfo = [String : Any]()
     private var authorization: String!
     
-    public func onLookupComplete(_ request: BTThreeDSecureRequest, result: BTThreeDSecureLookup, next: @escaping () -> Void) {
+    public func onLookupComplete(_ request: BTThreeDSecureRequest, lookupResult result: BTThreeDSecureResult, next: @escaping () -> Void) {
         next();
     }
     
@@ -65,9 +67,10 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
                 threeDSecureRequest.amount = NSDecimalNumber(string: amount)
                 dropInRequest.threeDSecureRequest = threeDSecureRequest
             }
-            
-            if let requestThreeDSecureVerification = bool(for: "requestThreeDSecureVerification", in: call) {
-                dropInRequest.threeDSecureVerification = requestThreeDSecureVerification
+
+            var deviceData: String?
+            if let collectDeviceData = bool(for: "collectDeviceData", in: call), collectDeviceData {
+                deviceData = PPDataCollector.collectPayPalDeviceData()
             }
             
             if let vaultManagerEnabled = bool(for: "vaultManagerEnabled", in: call) {
@@ -77,15 +80,24 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
             if let cardEnabled = bool(for: "cardEnabled", in: call) {
                 dropInRequest.cardDisabled = !cardEnabled
             }
-            
+
+            if let paypalEnabled = bool(for: "paypalEnabled", in: call) {
+                dropInRequest.paypalDisabled = !paypalEnabled
+            }
+
             if let paypalInfo = dict(for: "paypalRequest", in: call) {
-                let amount = paypalInfo["amount"] as? String;
-                
-                let paypalRequest = amount != nil ? BTPayPalRequest(amount: amount!) : BTPayPalRequest();
-                paypalRequest.currencyCode = paypalInfo["currencyCode"] as? String;
-                paypalRequest.displayName = paypalInfo["displayName"] as? String;
-                paypalRequest.billingAgreementDescription = paypalInfo["billingAgreementDescription"] as? String;
-                dropInRequest.payPalRequest = paypalRequest
+                if let amount = paypalInfo["amount"] as? String {
+                    let paypalRequest = BTPayPalCheckoutRequest(amount: amount)
+                    paypalRequest.currencyCode = paypalInfo["currencyCode"] as? String
+                    paypalRequest.displayName = paypalInfo["displayName"] as? String
+                    paypalRequest.billingAgreementDescription = paypalInfo["billingAgreementDescription"] as? String
+                    dropInRequest.payPalRequest = paypalRequest
+                } else {
+                    let paypalRequest = BTPayPalVaultRequest()
+                    paypalRequest.displayName = paypalInfo["displayName"] as? String
+                    paypalRequest.billingAgreementDescription = paypalInfo["billingAgreementDescription"] as? String
+                    dropInRequest.payPalRequest = paypalRequest
+                }
             } else {
                 dropInRequest.paypalDisabled = true
             }
@@ -107,7 +119,7 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
             let dropInController = BTDropInController(authorization: authorization, request: dropInRequest) { (controller, braintreeResult, error) in
                 controller.dismiss(animated: true, completion: nil)
                 
-                self.handleResult(result: braintreeResult, error: error, flutterResult: result)
+                self.handleResult(result: braintreeResult, error: error, flutterResult: result, deviceData: deviceData)
                 self.isHandlingResult = false
             }
             
@@ -127,7 +139,7 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
         paymentRequest.merchantCapabilities = .capability3DS
         paymentRequest.countryCode = applePayInfo["countryCode"] as! String
         paymentRequest.currencyCode = applePayInfo["currencyCode"] as! String
-        paymentRequest.merchantIdentifier = applePayInfo["appleMerchantID"] as! String
+        paymentRequest.merchantIdentifier = applePayInfo["merchantIdentifier"] as! String
         
         guard let paymentSummaryItems = makePaymentSummaryItems(from: applePayInfo) else {
             return;
@@ -143,16 +155,16 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
         UIApplication.shared.keyWindow?.rootViewController?.present(applePayController, animated: true, completion: nil)
     }
     
-    private func handleResult(result: BTDropInResult?, error: Error?, flutterResult: FlutterResult) {
+    private func handleResult(result: BTDropInResult?, error: Error?, flutterResult: FlutterResult, deviceData: String?) {
         if error != nil {
             returnBraintreeError(result: flutterResult, error: error!)
-        } else if result?.isCancelled ?? false {
+        } else if result?.isCanceled ?? false {
             flutterResult(nil)
         } else {
-            if let result = result, result.paymentOptionType == .applePay {
+            if let result = result, result.paymentMethodType == .applePay {
                 setupApplePay(flutterResult: flutterResult)
             } else {
-                flutterResult(["paymentMethodNonce": buildPaymentNonceDict(nonce: result?.paymentMethod)])
+                flutterResult(["paymentMethodNonce": buildPaymentNonceDict(nonce: result?.paymentMethod), "deviceData": deviceData])
             }
         }
     }

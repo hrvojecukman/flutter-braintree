@@ -25,12 +25,16 @@ open class BaseFlutterBraintreePlugin: NSObject {
     }
 
     internal func buildPaymentNonceDict(nonce: BTPaymentMethodNonce?) -> [String: Any?] {
-        [
-            "nonce": nonce?.nonce,
-            "typeLabel": nonce?.type,
-            "description": nonce?.localizedDescription,
-            "isDefault": nonce?.isDefault
-        ];
+        var dict = [String: Any?]()
+        dict["nonce"] = nonce?.nonce
+        dict["typeLabel"] = nonce?.type
+        dict["description"] = nonce?.nonce
+        dict["isDefault"] = nonce?.isDefault
+        if let paypalNonce = nonce as? BTPayPalAccountNonce {
+            dict["paypalPayerId"] = paypalNonce.payerID
+            dict["description"] = paypalNonce.email
+        }
+        return dict
     }
     
     internal func returnAuthorizationMissingError (result: FlutterResult) {
