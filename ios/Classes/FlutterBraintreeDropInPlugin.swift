@@ -63,9 +63,32 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
             
             if let amount = string(for: "amount", in: call) {
                 let threeDSecureRequest = BTThreeDSecureRequest()
+                
                 threeDSecureRequest.threeDSecureRequestDelegate = self
                 threeDSecureRequest.amount = NSDecimalNumber(string: amount)
+                threeDSecureRequest.versionRequested = .version2
+                
+                if let billingAddressDict = dict(for: "billingAddress", in: call) {
+                    let billingAddress = BTThreeDSecurePostalAddress()
+                    
+                    billingAddress.givenName = billingAddressDict["givenName"] as? String
+                    billingAddress.surname = billingAddressDict["surname"] as? String
+                    billingAddress.phoneNumber = billingAddressDict["phoneNumber"] as? String
+                    billingAddress.streetAddress = billingAddressDict["streetAddress"] as? String
+                    billingAddress.extendedAddress = billingAddressDict["extendedAddress"] as? String
+                    billingAddress.locality = billingAddressDict["locality"] as? String
+                    billingAddress.region = billingAddressDict["region"] as? String
+                    billingAddress.postalCode = billingAddressDict["postalCode"] as? String
+                    billingAddress.countryCodeAlpha2 = billingAddressDict["countryCodeAlpha2"] as? String
+                    
+                    threeDSecureRequest.billingAddress = billingAddress
+                }
+                
                 dropInRequest.threeDSecureRequest = threeDSecureRequest
+            }
+            
+            if let cardholderNameSetting = integer(for: "cardholderNameSetting", in: call) {
+                dropInRequest.cardholderNameSetting = BTFormFieldSetting(rawValue: cardholderNameSetting) ?? .disabled
             }
 
             var deviceData: String?
@@ -164,7 +187,7 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
             if let result = result, result.paymentMethodType == .applePay {
                 setupApplePay(flutterResult: flutterResult)
             } else {
-                flutterResult(["paymentMethodNonce": buildPaymentNonceDict(nonce: result?.paymentMethod), "deviceData": deviceData])
+                flutterResult(["paymentMethodNonce": buildPaymentNonceDict(nonce: result?.paymentMethod), "deviceData": deviceData ?? ""])
             }
         }
     }

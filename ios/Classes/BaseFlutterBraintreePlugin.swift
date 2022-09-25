@@ -62,4 +62,8 @@ open class BaseFlutterBraintreePlugin: NSObject {
     internal func dict(for key: String, in call: FlutterMethodCall) -> [String: Any]? {
         return (call.arguments as? [String: Any])?[key] as? [String: Any]
     }
+    
+    internal func integer(for key: String, in call: FlutterMethodCall) -> Int? {
+        return (call.arguments as? [String: Any])?[key] as? Int
+    }
 }

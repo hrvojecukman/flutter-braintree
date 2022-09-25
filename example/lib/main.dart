@@ -51,10 +51,12 @@ class _MyAppState extends State<MyApp> {
                   tokenizationKey: tokenizationKey,
                   collectDeviceData: true,
                   googlePaymentRequest: BraintreeGooglePaymentRequest(
+                    priceStatus: GooglePayPriceStatus.Final,
                     totalPrice: '4.20',
                     currencyCode: 'USD',
                     billingAddressRequired: false,
                   ),
+                  cardholderNameSetting: CardholderNameSetting.Required,
                   paypalRequest: BraintreePayPalRequest(
                     amount: '4.20',
                     displayName: 'Example company',
