@@ -8,6 +8,7 @@ class BraintreeDropInRequest {
     this.googlePaymentRequest,
     this.paypalRequest,
     this.applePayRequest,
+    this.email,
     this.venmoEnabled = true,
     this.cardEnabled = true,
     this.paypalEnabled = true,
@@ -73,6 +74,10 @@ class BraintreeDropInRequest {
   /// optional, required or not required
   CardholderNameSetting? cardholderNameSetting;
 
+  /// User email
+  /// Mostly used for 3dsV2
+  String? email;
+
   /// Converts this request object into a JSON-encodable format.
   Map<String, dynamic> toJson() => {
         if (clientToken != null) 'clientToken': clientToken,
@@ -94,6 +99,7 @@ class BraintreeDropInRequest {
         if (billingAddress != null) 'billingAddress': billingAddress!.toJson(),
         if (cardholderNameSetting != null)
           'cardholderNameSetting': cardholderNameSetting!.rawValue,
+        if (email != null) 'email': email,
       };
 }
 

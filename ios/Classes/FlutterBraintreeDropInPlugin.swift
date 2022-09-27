@@ -84,6 +84,10 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
                     threeDSecureRequest.billingAddress = billingAddress
                 }
                 
+                if let email = string(for: "email", in: call) {
+                    threeDSecureRequest.email = email
+                }
+
                 dropInRequest.threeDSecureRequest = threeDSecureRequest
             }
             
