@@ -110,6 +110,8 @@ public class FlutterBraintreeDropIn implements FlutterPlugin, ActivityAware, Met
         dropInRequest.setThreeDSecureRequest(threeDSecureRequest);
       }
 
+      if (call.hasArgument("cardholderNameSetting"))
+        dropInRequest.setCardholderNameStatus((Integer) call.argument("cardholderNameSetting"));
 
       readGooglePaymentParameters(dropInRequest, call);
       readPayPalParameters(dropInRequest, call);
