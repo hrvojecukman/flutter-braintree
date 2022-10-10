@@ -1,3 +1,4 @@
+/*
 package com.example.flutter_braintree;
 
 import android.app.Activity;
@@ -148,3 +149,4 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
     }
   }
 }
+ */

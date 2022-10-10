@@ -1,10 +1,10 @@
+/*
 package com.example.flutter_braintree;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import com.braintreepayments.api.BraintreeFragment;
 import com.braintreepayments.api.Card;
 import com.braintreepayments.api.PayPal;
@@ -120,3 +120,4 @@ public class FlutterBraintreeCustom extends AppCompatActivity implements Payment
         finish();
     }
 }
+*/
