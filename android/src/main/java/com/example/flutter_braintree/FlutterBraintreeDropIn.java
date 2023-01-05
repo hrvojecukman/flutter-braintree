@@ -221,7 +221,7 @@ public class FlutterBraintreeDropIn implements FlutterPlugin, ActivityAware, Met
     GooglePayRequest googlePaymentRequest = new GooglePayRequest();
     googlePaymentRequest.setTransactionInfo(transactionInfoBuilder.build());
     googlePaymentRequest.setBillingAddressRequired((Boolean) arg.get("billingAddressRequired"));
-    googlePaymentRequest.setGoogleMerchantName((String) arg.get("merchantID"));
+    googlePaymentRequest.setGoogleMerchantName((String) arg.get("googleMerchantID"));
     dropInRequest.setGooglePayRequest(googlePaymentRequest);
   }
 
