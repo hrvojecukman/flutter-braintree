@@ -52,7 +52,7 @@ dependencies {
                 deps.each { dep ->
                     if (dep.group == 'net.minidev' && dep.name =='json-smart') {
                         dep.version {
-                            prefer "2.3"
+                            prefer "2.2.7-2"
                         }
                         dep.because "resolving dependencies issue"
                     }
