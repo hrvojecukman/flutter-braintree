@@ -8,12 +8,15 @@ class BraintreeDropInRequest {
     this.googlePaymentRequest,
     this.paypalRequest,
     this.applePayRequest,
+    this.email,
     this.venmoEnabled = true,
     this.cardEnabled = true,
     this.paypalEnabled = true,
     this.maskCardNumber = false,
     this.maskSecurityCode = false,
     this.vaultManagerEnabled = false,
+    this.cardholderNameSetting,
+    this.billingAddress,
   });
 
   /// Authorization allowing this client to communicate with Braintree.
@@ -63,6 +66,18 @@ class BraintreeDropInRequest {
   /// Xcode, App Store Connect or Braintree control panel was done incorrectly.
   BraintreeApplePayRequest? applePayRequest;
 
+  /// Billing address and other information
+  /// Currently used only when using 3dsV2
+  BraintreeBillingAddress? billingAddress;
+
+  /// Request cardholder name
+  /// optional, required or not required
+  CardholderNameSetting? cardholderNameSetting;
+
+  /// User email
+  /// Mostly used for 3dsV2
+  String? email;
+
   /// Converts this request object into a JSON-encodable format.
   Map<String, dynamic> toJson() => {
         if (clientToken != null) 'clientToken': clientToken,
@@ -81,6 +96,10 @@ class BraintreeDropInRequest {
         'maskCardNumber': maskCardNumber,
         'maskSecurityCode': maskSecurityCode,
         'vaultManagerEnabled': vaultManagerEnabled,
+        if (billingAddress != null) 'billingAddress': billingAddress!.toJson(),
+        if (cardholderNameSetting != null)
+          'cardholderNameSetting': cardholderNameSetting!.rawValue,
+        if (email != null) 'email': email,
       };
 }
 
@@ -314,4 +333,79 @@ class BraintreeApplePayRequest {
         'countryCode': countryCode,
         'merchantIdentifier': merchantIdentifier,
       };
+}
+
+class BraintreeBillingAddress {
+  BraintreeBillingAddress({
+    this.givenName,
+    this.surname,
+    this.phoneNumber,
+    this.streetAddress,
+    this.extendedAddress,
+    this.locality,
+    this.region,
+    this.postalCode,
+    this.countryCodeAlpha2,
+  });
+
+  ///Given name
+  final String? givenName;
+
+  ///Surname
+  final String? surname;
+
+  ///Phone number
+  final String? phoneNumber;
+
+  ///Street address
+  final String? streetAddress;
+
+  ///Extended address
+  final String? extendedAddress;
+
+  ///Locality eg. IL
+  final String? locality;
+
+  ///Region
+  final String? region;
+
+  ///Postal code
+  final String? postalCode;
+
+  ///??
+  final String? countryCodeAlpha2;
+
+  /// Converts this request object into a JSON-encodable format.
+  Map<String, dynamic> toJson() => {
+        if (givenName != null) 'givenName': givenName,
+        if (surname != null) 'surname': surname,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
+        if (streetAddress != null) 'streetAddress': streetAddress,
+        if (extendedAddress != null) 'extendedAddress': extendedAddress,
+        if (locality != null) 'locality': locality,
+        if (region != null) 'region': region,
+        if (postalCode != null) 'postalCode': postalCode,
+        if (countryCodeAlpha2 != null) 'countryCodeAlpha2': countryCodeAlpha2,
+      };
+}
+
+enum CardholderNameSetting {
+  Disabled,
+  Optional,
+  Required,
+}
+
+extension CardholderNameSettingExtension on CardholderNameSetting {
+  int? get rawValue {
+    switch (this) {
+      case CardholderNameSetting.Disabled:
+        return 0;
+      case CardholderNameSetting.Optional:
+        return 1;
+      case CardholderNameSetting.Required:
+        return 2;
+      default:
+        return null;
+    }
+  }
 }

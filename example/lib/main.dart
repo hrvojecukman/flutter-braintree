@@ -50,11 +50,15 @@ class _MyAppState extends State<MyApp> {
                 var request = BraintreeDropInRequest(
                   tokenizationKey: tokenizationKey,
                   collectDeviceData: true,
+                  amount: "4.20",
+                  email: "hello@world.com",
                   googlePaymentRequest: BraintreeGooglePaymentRequest(
+                    priceStatus: GooglePayPriceStatus.Final,
                     totalPrice: '4.20',
                     currencyCode: 'USD',
                     billingAddressRequired: false,
                   ),
+                  cardholderNameSetting: CardholderNameSetting.Required,
                   paypalRequest: BraintreePayPalRequest(
                     amount: '4.20',
                     displayName: 'Example company',
