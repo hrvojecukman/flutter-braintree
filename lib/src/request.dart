@@ -3,12 +3,13 @@ class BraintreeDropInRequest {
     this.clientToken,
     this.tokenizationKey,
     this.amount,
+    this.billingAddress,
+    this.email,
     this.collectDeviceData = false,
     this.requestThreeDSecureVerification = false,
     this.googlePaymentRequest,
     this.paypalRequest,
     this.applePayRequest,
-    this.email,
     this.venmoEnabled = true,
     this.cardEnabled = true,
     this.paypalEnabled = true,
@@ -16,7 +17,6 @@ class BraintreeDropInRequest {
     this.maskSecurityCode = false,
     this.vaultManagerEnabled = false,
     this.cardholderNameSetting,
-    this.billingAddress,
   });
 
   /// Authorization allowing this client to communicate with Braintree.
@@ -27,8 +27,14 @@ class BraintreeDropInRequest {
   /// Either [clientToken] or [tokenizationKey] must be set.
   String? tokenizationKey;
 
+  ///Additional Information about the user to trigger 3ds 2.0
+  BraintreeBillingAddress? billingAddress;
+
   /// Amount for the transaction. This is only used for 3D secure verfications.
   String? amount;
+
+  /// Email of the user. this is used to icnrease the possibilities of success of 3ds 2.0
+  String? email;
 
   /// Whether the Drop-in should collect and return device data for fraud prevention.
   bool collectDeviceData;
@@ -66,22 +72,16 @@ class BraintreeDropInRequest {
   /// Xcode, App Store Connect or Braintree control panel was done incorrectly.
   BraintreeApplePayRequest? applePayRequest;
 
-  /// Billing address and other information
-  /// Currently used only when using 3dsV2
-  BraintreeBillingAddress? billingAddress;
-
   /// Request cardholder name
   /// optional, required or not required
   CardholderNameSetting? cardholderNameSetting;
-
-  /// User email
-  /// Mostly used for 3dsV2
-  String? email;
 
   /// Converts this request object into a JSON-encodable format.
   Map<String, dynamic> toJson() => {
         if (clientToken != null) 'clientToken': clientToken,
         if (tokenizationKey != null) 'tokenizationKey': tokenizationKey,
+        if (email != null) 'email': email,
+        if (billingAddress != null) 'billingAddress': billingAddress!.toJson(),
         if (amount != null) 'amount': amount,
         'collectDeviceData': collectDeviceData,
         'requestThreeDSecureVerification': requestThreeDSecureVerification,
@@ -96,10 +96,8 @@ class BraintreeDropInRequest {
         'maskCardNumber': maskCardNumber,
         'maskSecurityCode': maskSecurityCode,
         'vaultManagerEnabled': vaultManagerEnabled,
-        if (billingAddress != null) 'billingAddress': billingAddress!.toJson(),
         if (cardholderNameSetting != null)
           'cardholderNameSetting': cardholderNameSetting!.rawValue,
-        if (email != null) 'email': email,
       };
 }
 
@@ -276,6 +274,28 @@ extension ApplePaySummaryItemTypeExtension on ApplePaySummaryItemType {
   }
 }
 
+enum ApplePaySupportedNetworks {
+  visa, // ios >= 8.0
+  masterCard, // ios >= 8.0
+  amex, // ios >= 8.0
+  discover, // ios >= 9.0
+}
+
+extension ApplePaySupportedNetworksExtension on ApplePaySupportedNetworks {
+  int get rawValue {
+    switch (this) {
+      case ApplePaySupportedNetworks.visa:
+        return 0;
+      case ApplePaySupportedNetworks.masterCard:
+        return 1;
+      case ApplePaySupportedNetworks.amex:
+        return 2;
+      case ApplePaySupportedNetworks.discover:
+        return 3;
+    }
+  }
+}
+
 class ApplePaySummaryItem {
   ApplePaySummaryItem({
     required this.label,
@@ -307,6 +327,7 @@ class BraintreeApplePayRequest {
     required this.currencyCode,
     required this.countryCode,
     required this.merchantIdentifier,
+    required this.supportedNetworks,
   });
 
   /// A summary of the payment.
@@ -324,6 +345,9 @@ class BraintreeApplePayRequest {
   /// Apple merchant identifier.
   final String merchantIdentifier;
 
+  /// Supported Networks
+  final List<ApplePaySupportedNetworks> supportedNetworks;
+
   /// Converts this request object into a JSON-encodable format.
   Map<String, dynamic> toJson() => {
         'paymentSummaryItems':
@@ -332,6 +356,7 @@ class BraintreeApplePayRequest {
         'displayName': displayName,
         'countryCode': countryCode,
         'merchantIdentifier': merchantIdentifier,
+        'supportedNetworks': supportedNetworks.map((e) => e.rawValue).toList(),
       };
 }
 
