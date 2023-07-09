@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 
+
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -84,39 +85,29 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
         activeResult = result;
 
         if (call.method.equals("tokenizeCreditCard")) {
-            result.notImplemented();
-            activeResult = null;
-            return;
-      /*String authorization = call.argument("authorization");
-      Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
-      intent.putExtra("type", "tokenizeCreditCard");
-      intent.putExtra("authorization", (String) call.argument("authorization"));
-      assert(call.argument("request") instanceof Map);
-      Map request = (Map) call.argument("request");
-      intent.putExtra("cardNumber", (String) request.get("cardNumber"));
-      intent.putExtra("expirationMonth", (String) request.get("expirationMonth"));
-      intent.putExtra("expirationYear", (String) request.get("expirationYear"));
-      intent.putExtra("cvv", (String) request.get("cvv"));
-      intent.putExtra("cardholderName", (String) request.get("cardholderName"));
-      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);*/
+            Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
+            intent.putExtra("type", "tokenizeCreditCard");
+            intent.putExtra("authorization", (String) call.argument("authorization"));
+            assert(call.argument("request") instanceof Map);
+            Map request = (Map) call.argument("request");
+            intent.putExtra("cardNumber", (String) request.get("cardNumber"));
+            intent.putExtra("expirationMonth", (String) request.get("expirationMonth"));
+            intent.putExtra("expirationYear", (String) request.get("expirationYear"));
+            intent.putExtra("cvv", (String) request.get("cvv"));
+            intent.putExtra("cardholderName", (String) request.get("cardholderName"));
             activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
         } else if (call.method.equals("requestPaypalNonce")) {
-            result.notImplemented();
-            activeResult = null;
-            return;
-      /*String authorization = call.argument("authorization");
-      Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
-      intent.putExtra("type", "requestPaypalNonce");
-      intent.putExtra("authorization", (String) call.argument("authorization"));
-      assert(call.argument("request") instanceof Map);
-      Map request = (Map) call.argument("request");
-      intent.putExtra("amount", (String) request.get("amount"));
-      intent.putExtra("currencyCode", (String) request.get("currencyCode"));
-      intent.putExtra("displayName", (String) request.get("displayName"));
-      intent.putExtra("payPalPaymentIntent", (String) request.get("payPalPaymentIntent"));
-      intent.putExtra("payPalPaymentUserAction", (String) request.get("payPalPaymentUserAction"));
-      intent.putExtra("billingAgreementDescription", (String) request.get("billingAgreementDescription"));
-      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);*/
+            Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
+            intent.putExtra("type", "requestPaypalNonce");
+            intent.putExtra("authorization", (String) call.argument("authorization"));
+            assert(call.argument("request") instanceof Map);
+            Map request = (Map) call.argument("request");
+            intent.putExtra("amount", (String) request.get("amount"));
+            intent.putExtra("currencyCode", (String) request.get("currencyCode"));
+            intent.putExtra("displayName", (String) request.get("displayName"));
+            intent.putExtra("payPalPaymentIntent", (String) request.get("payPalPaymentIntent"));
+            intent.putExtra("payPalPaymentUserAction", (String) request.get("payPalPaymentUserAction"));
+            intent.putExtra("billingAgreementDescription", (String) request.get("billingAgreementDescription"));
             activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
         } else {
             result.notImplemented();
@@ -141,7 +132,7 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     activeResult.success(null);
-                } else {
+                }  else {
                     Exception error = (Exception) data.getSerializableExtra("error");
                     activeResult.error("error", error.getMessage(), null);
                 }
