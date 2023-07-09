@@ -1,4 +1,3 @@
-/*
 package com.example.flutter_braintree;
 
 import android.app.Activity;
@@ -120,7 +119,7 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
   public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
     if (activeResult == null)
       return false;
-    
+
     switch (requestCode) {
       case CUSTOM_ACTIVITY_REQUEST_CODE:
         if (resultCode == Activity.RESULT_OK) {
@@ -144,4 +143,3 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
     }
   }
 }
- */
