@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 
 
-
 import java.util.Map;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -19,72 +18,76 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 
 public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, ActivityResultListener {
-  private static final int CUSTOM_ACTIVITY_REQUEST_CODE = 0x420;
+    private static final int CUSTOM_ACTIVITY_REQUEST_CODE = 0x420;
 
-  private Activity activity;
-  private Result activeResult;
+    private Activity activity;
+    private Result activeResult;
 
-  private FlutterBraintreeDropIn dropIn;
+    private FlutterBraintreeDropIn dropIn;
 
-  public static void registerWith(Registrar registrar) {
-    FlutterBraintreeDropIn.registerWith(registrar);
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_braintree.custom");
-    FlutterBraintreePlugin plugin = new FlutterBraintreePlugin();
-    plugin.activity = registrar.activity();
-    registrar.addActivityResultListener(plugin);
-    channel.setMethodCallHandler(plugin);
-  }
-
-  @Override
-  public void onAttachedToEngine(FlutterPluginBinding binding) {
-    final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "flutter_braintree.custom");
-    channel.setMethodCallHandler(this);
-
-    dropIn = new FlutterBraintreeDropIn();
-    dropIn.onAttachedToEngine(binding);
-  }
-
-  @Override
-  public void onDetachedFromEngine(FlutterPluginBinding binding) {
-    dropIn.onDetachedFromEngine(binding);
-    dropIn = null;
-  }
-
-  @Override
-  public void onAttachedToActivity(ActivityPluginBinding binding) {
-    activity = binding.getActivity();
-    binding.addActivityResultListener(this);
-    dropIn.onAttachedToActivity(binding);
-  }
-
-  @Override
-  public void onDetachedFromActivityForConfigChanges() {
-    activity = null;
-    dropIn.onDetachedFromActivity();
-  }
-
-  @Override
-  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
-    activity = binding.getActivity();
-    binding.addActivityResultListener(this);
-    dropIn.onReattachedToActivityForConfigChanges(binding);
-  }
-
-  @Override
-  public void onDetachedFromActivity() {
-    activity = null;
-    dropIn.onDetachedFromActivity();
-  }
-
-  @Override
-  public void onMethodCall(MethodCall call, Result result) {
-    if (activeResult != null) {
-      result.error("already_running", "Cannot launch another custom activity while one is already running.", null);
-      return;
+    public static void registerWith(Registrar registrar) {
+        FlutterBraintreeDropIn.registerWith(registrar);
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_braintree.custom");
+        FlutterBraintreePlugin plugin = new FlutterBraintreePlugin();
+        plugin.activity = registrar.activity();
+        registrar.addActivityResultListener(plugin);
+        channel.setMethodCallHandler(plugin);
     }
-    activeResult = result;
 
-    if (call.method.equals("tokenizeCreditCard")) {
+    @Override
+    public void onAttachedToEngine(FlutterPluginBinding binding) {
+        final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "flutter_braintree.custom");
+        channel.setMethodCallHandler(this);
+
+        dropIn = new FlutterBraintreeDropIn();
+        dropIn.onAttachedToEngine(binding);
+    }
+
+    @Override
+    public void onDetachedFromEngine(FlutterPluginBinding binding) {
+        dropIn.onDetachedFromEngine(binding);
+        dropIn = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+        binding.addActivityResultListener(this);
+        dropIn.onAttachedToActivity(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        activity = null;
+        dropIn.onDetachedFromActivity();
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        activity = binding.getActivity();
+        binding.addActivityResultListener(this);
+        dropIn.onReattachedToActivityForConfigChanges(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
+        dropIn.onDetachedFromActivity();
+    }
+
+    @Override
+    public void onMethodCall(MethodCall call, Result result) {
+        if (activeResult != null) {
+            result.error("already_running", "Cannot launch another custom activity while one is already running.", null);
+            return;
+        }
+        activeResult = result;
+
+        if (call.method.equals("tokenizeCreditCard")) {
+            result.notImplemented();
+            activeResult = null;
+            return;
+      /*String authorization = call.argument("authorization");
       Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
       intent.putExtra("type", "tokenizeCreditCard");
       intent.putExtra("authorization", (String) call.argument("authorization"));
@@ -95,8 +98,13 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
       intent.putExtra("expirationYear", (String) request.get("expirationYear"));
       intent.putExtra("cvv", (String) request.get("cvv"));
       intent.putExtra("cardholderName", (String) request.get("cardholderName"));
-      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
-    } else if (call.method.equals("requestPaypalNonce")) {
+      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);*/
+            activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
+        } else if (call.method.equals("requestPaypalNonce")) {
+            result.notImplemented();
+            activeResult = null;
+            return;
+      /*String authorization = call.argument("authorization");
       Intent intent = new Intent(activity, FlutterBraintreeCustom.class);
       intent.putExtra("type", "requestPaypalNonce");
       intent.putExtra("authorization", (String) call.argument("authorization"));
@@ -108,38 +116,39 @@ public class FlutterBraintreePlugin implements FlutterPlugin, ActivityAware, Met
       intent.putExtra("payPalPaymentIntent", (String) request.get("payPalPaymentIntent"));
       intent.putExtra("payPalPaymentUserAction", (String) request.get("payPalPaymentUserAction"));
       intent.putExtra("billingAgreementDescription", (String) request.get("billingAgreementDescription"));
-      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
-    } else {
-      result.notImplemented();
-      activeResult = null;
-    }
-  }
-
-  @Override
-  public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (activeResult == null)
-      return false;
-
-    switch (requestCode) {
-      case CUSTOM_ACTIVITY_REQUEST_CODE:
-        if (resultCode == Activity.RESULT_OK) {
-          String type = data.getStringExtra("type");
-          if (type.equals("paymentMethodNonce")) {
-            activeResult.success(data.getSerializableExtra("paymentMethodNonce"));
-          } else {
-            Exception error = new Exception("Invalid activity result type.");
-            activeResult.error("error", error.getMessage(), null);
-          }
-        } else if (resultCode == Activity.RESULT_CANCELED) {
-          activeResult.success(null);
-        }  else {
-          Exception error = (Exception) data.getSerializableExtra("error");
-          activeResult.error("error", error.getMessage(), null);
+      activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);*/
+            activity.startActivityForResult(intent, CUSTOM_ACTIVITY_REQUEST_CODE);
+        } else {
+            result.notImplemented();
+            activeResult = null;
         }
-        activeResult = null;
-        return true;
-      default:
-        return false;
     }
-  }
+
+    @Override
+    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (activeResult == null)
+            return false;
+
+        switch (requestCode) {
+            case CUSTOM_ACTIVITY_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    String type = data.getStringExtra("type");
+                    if (type.equals("paymentMethodNonce")) {
+                        activeResult.success(data.getSerializableExtra("paymentMethodNonce"));
+                    } else {
+                        Exception error = new Exception("Invalid activity result type.");
+                        activeResult.error("error", error.getMessage(), null);
+                    }
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    activeResult.success(null);
+                } else {
+                    Exception error = (Exception) data.getSerializableExtra("error");
+                    activeResult.error("error", error.getMessage(), null);
+                }
+                activeResult = null;
+                return true;
+            default:
+                return false;
+        }
+    }
 }
