@@ -63,14 +63,14 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
             
             if let amount = string(for: "amount", in: call) {
                 let threeDSecureRequest = BTThreeDSecureRequest()
-                
+
                 threeDSecureRequest.threeDSecureRequestDelegate = self
                 threeDSecureRequest.amount = NSDecimalNumber(string: amount)
                 threeDSecureRequest.versionRequested = .version2
-                
+
                 if let billingAddressDict = dict(for: "billingAddress", in: call) {
                     let billingAddress = BTThreeDSecurePostalAddress()
-                    
+
                     billingAddress.givenName = billingAddressDict["givenName"] as? String
                     billingAddress.surname = billingAddressDict["surname"] as? String
                     billingAddress.phoneNumber = billingAddressDict["phoneNumber"] as? String
@@ -80,17 +80,17 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
                     billingAddress.region = billingAddressDict["region"] as? String
                     billingAddress.postalCode = billingAddressDict["postalCode"] as? String
                     billingAddress.countryCodeAlpha2 = billingAddressDict["countryCodeAlpha2"] as? String
-                    
+
                     threeDSecureRequest.billingAddress = billingAddress
                 }
-                
+
                 if let email = string(for: "email", in: call) {
                     threeDSecureRequest.email = email
                 }
 
                 dropInRequest.threeDSecureRequest = threeDSecureRequest
             }
-            
+
             if let cardholderNameSetting = integer(for: "cardholderNameSetting", in: call) {
                 dropInRequest.cardholderNameSetting = BTFormFieldSetting(rawValue: cardholderNameSetting) ?? .disabled
             }
@@ -162,7 +162,11 @@ public class FlutterBraintreeDropInPlugin: BaseFlutterBraintreePlugin, FlutterPl
     
     private func setupApplePay(flutterResult: FlutterResult) {
         let paymentRequest = PKPaymentRequest()
-        paymentRequest.supportedNetworks = [.visa, .masterCard, .amex, .discover]
+        if let supportedNetworksValueArray = applePayInfo["supportedNetworks"] as? [Int] {
+            paymentRequest.supportedNetworks = supportedNetworksValueArray.compactMap({ value in
+                return PKPaymentNetwork.mapRequestedNetwork(rawValue: value)
+            })
+        }
         paymentRequest.merchantCapabilities = .capability3DS
         paymentRequest.countryCode = applePayInfo["countryCode"] as! String
         paymentRequest.currencyCode = applePayInfo["currencyCode"] as! String
